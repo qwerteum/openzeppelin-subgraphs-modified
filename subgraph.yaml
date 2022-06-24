@@ -1,10 +1,14 @@
+specVersion: 0.0.2
+schema:
+  file: erc721.schema.graphql
+dataSources:
   - kind: ethereum/contract
-    name: {id}
-    network: {chain}
+    name: erc721
+    network: mainnet
     source:
-      address: "{address}"
+      address: "0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
       abi: EIP721
-      startBlock: {startBlock}
+      startBlock: 4300082
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -17,9 +21,8 @@
         - Transaction
       abis:
         - name: EIP721
-          file: {root}/src/abis/EIP721.json
-          # file: {root}/node_modules/@openzeppelin/contracts/build/contracts/IERC721Metadata.json
+          file: src/abis/EIP721.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-      file: {file}
+      file: src/datasources/erc721.ts

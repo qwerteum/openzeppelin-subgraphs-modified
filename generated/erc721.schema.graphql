@@ -1,58 +1,57 @@
-type Account @entity {
-	id: Bytes!
-	asERC721: ERC721Contract
-	ERC721tokens: [ERC721Token!]! @derivedFrom(field: "owner")
-	ERC721operatorOwner: [ERC721Operator!]! @derivedFrom(field: "owner")
-	ERC721operatorOperator: [ERC721Operator!]! @derivedFrom(field: "operator")
-	ERC721transferFromEvent: [ERC721Transfer!]! @derivedFrom(field: "from")
-	ERC721transferToEvent: [ERC721Transfer!]! @derivedFrom(field: "to")
-	events: [Event!]! @derivedFrom(field: "emitter")
+type Blockchain @entity {
+	id: ID!
+	totalCollections: BigInt!
+	totalTokens: BigInt!
+	totalTransactions: BigInt!
 }
-type ERC721Contract @entity(immutable: true) {
-	id: Bytes!
-	asAccount: Account!
-	supportsMetadata: Boolean
-	name: String
+type Collection @entity {
+	id: ID!
+	name: String!
 	symbol: String
-	tokens: [ERC721Token!]! @derivedFrom(field: "contract")
-	operators: [ERC721Operator!]! @derivedFrom(field: "contract")
-	transfers: [ERC721Transfer!]! @derivedFrom(field: "contract")
+	tokens: [[Token!]!]! @derivedFrom(field: "collection")
+	totalOwners: BigInt!
+	totalTokens: BigInt!
+	transactions: [[Transaction!]!]! @derivedFrom(field: "collection")
+	totalTransactions: BigInt!
+	block: BigInt!
+	createdAt: BigInt!
+	updatedAt: BigInt!
 }
-type ERC721Token @entity {
+type Owner @entity {
 	id: ID!
-	contract: ERC721Contract!
-	identifier: BigInt!
-	owner: Account!
-	approval: Account!
-	uri: String
-	transfers: [ERC721Transfer!]! @derivedFrom(field: "token")
+	tokens: [[Token!]!]! @derivedFrom(field: "owner")
+	totalTokens: BigInt!
+	totalTokensMinted: BigInt!
+	fromTransactions: [[Transaction!]!]! @derivedFrom(field: "from")
+	toTransactions: [[Transaction!]!]! @derivedFrom(field: "to")
+	totalTransactions: BigInt!
+	block: BigInt!
+	createdAt: BigInt!
+	updatedAt: BigInt!
 }
-type ERC721Operator @entity {
+type Token @entity {
 	id: ID!
-	contract: ERC721Contract!
-	owner: Account!
-	operator: Account!
-	approved: Boolean!
+	collection: Collection!
+	tokenID: BigInt!
+	tokenURI: String
+	minter: Owner!
+	owner: Owner!
+	burned: Boolean!
+	transactions: [[Transaction!]!]! @derivedFrom(field: "token")
+	totalTransactions: BigInt!
+	block: BigInt!
+	createdAt: BigInt!
+	updatedAt: BigInt!
 }
-type ERC721Transfer implements Event @entity(immutable: true) {
+type Transaction @entity {
 	id: ID!
-	emitter: Account!
-	transaction: Transaction!
+	hash: Bytes!
+	from: Owner!
+	to: Owner!
+	collection: Collection!
+	token: Token!
+	gasLimit: BigInt!
+	gasPrice: BigDecimal!
+	block: BigInt!
 	timestamp: BigInt!
-	contract: ERC721Contract!
-	token: ERC721Token!
-	from: Account!
-	to: Account!
-}
-interface Event {
-	id: ID!
-	transaction: Transaction!
-	emitter: Account!
-	timestamp: BigInt!
-}
-type Transaction @entity(immutable: true) {
-	id: ID!
-	timestamp: BigInt!
-	blockNumber: BigInt!
-	events: [Event!]! @derivedFrom(field: "transaction")
 }
